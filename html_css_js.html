@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, intial-scale=1.0">
+        <title>Live Code Editor</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="https://kit.fontawesome.com/92c090278e.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <h1>HTML, CSS and JavaScript Editor</h1>
+        <div class="container">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab(0)"><i class="fa-solid fa-code"></i> HTML/CSS/JS</button>
+                <button class="tab" onclick="showTab(1)">Python</button>
+            </div>
+    
+            <div id="html-css-js" class="tabcontent">
+                <div class="left">
+                    <label><i class="fa-brands fa-html5"></i> HTML/CSS/JSHTML:</label>
+                    <textarea id="html-code" onkeyup="run()"></textarea>
+                    
+                    <label><i class="fa-brands fa-css"></i> HTML/CSS/JSCSS:</label>
+                    <textarea id="css-code" onkeyup="run()"></textarea>
+                
+                    <label><i class="fa-brands fa-js"></i>JavaScript:</label>
+                    <textarea id="js-code" onkeyup="run()"></textarea>
+                </div>
+                <div class="right">
+                    <label><i class="fa-solid fa-play"></i> Output</label>
+                    <iframe id="output"></iframe>
+                </div>
+            </div>
+    
+            <div id="python" class="tabcontent">
+                <div class="left">
+                    <label><i class="fa-brands fa-python"></i>Python:</label>
+                    <textarea id="python-code" onkeyup="runPython()"></textarea>
+                </div>
+                <div class="right">
+                    <label><i class="fa-solid fa-play"></i> Output</label>
+                    <iframe id="python-output"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            function run(){
+                let htmlCode = document.getElementById("html-code").value;
+                let cssCode = document.getElementById("css-code").value;
+                let jsCode = document.getElementById("js-code").value;
+                let output = document.getElementById("output");
+
+                output.contentDocument.body.innerHTML = htmlCode + "<style>" + cssCode + "<style>";
+                output.contentWindow.eval(jsCode);
+            }
+
+            function showTab(n) {
+                var i;
+                var x = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < x.length; i++) {
+                    x[i].style.display = "none";
+                }
+            document.getElementsByClassName("tab")[n].className += " active";
+            document.getElementsByClassName("tabcontent")[n].style.display = "block";
+            }
+
+            function runPython() {
+                const pythonCode = document.getElementById("python-code").value;
+                const output = document.getElementById("python-output");
+
+                fetch('/execute_python', {
+                    method: 'POST',
+                    body: pythonCode
+                })
+                .then(response => response.json())
+                .then(data => {
+                    output.textContent = data.output;
+                })
+                .catch(error => {
+                    output.textContent = 'Error: ' + error;
+                });
+                }
+
+        </script>
+
+    </body>
+</html>
