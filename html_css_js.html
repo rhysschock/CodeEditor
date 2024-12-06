@@ -11,15 +11,15 @@
         <div class="container">
             <div class="tabs">
                 <button class="tab active" onclick="showTab(0)"><i class="fa-solid fa-code"></i> HTML/CSS/JS</button>
-                <button class="tab" onclick="showTab(1)">Python</button>
+                <button class="tab" onclick="showTab(1)"><i class="fa-brands fa-python"></i>Python</button>
             </div>
     
             <div id="html-css-js" class="tabcontent">
                 <div class="left">
-                    <label><i class="fa-brands fa-html5"></i> HTML/CSS/JSHTML:</label>
+                    <label><i class="fa-brands fa-html5"></i> HTML:</label>
                     <textarea id="html-code" onkeyup="run()"></textarea>
                     
-                    <label><i class="fa-brands fa-css"></i> HTML/CSS/JSCSS:</label>
+                    <label><i class="fa-brands fa-css"></i> CSS:</label>
                     <textarea id="css-code" onkeyup="run()"></textarea>
                 
                     <label><i class="fa-brands fa-js"></i>JavaScript:</label>
@@ -45,6 +45,24 @@
 
         <script>
 
+            function showTab(n) {
+                var i;
+                var x = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < x.length; i++) {
+                    x[i].style.display = "none";
+                }
+                document.getElementsByClassName("tab")[n].className += " active";
+                document.getElementsByClassName("tabcontent")[n].style.display = "block";
+                
+                // Initially, show only the HTML/CSS/JS section
+                if (n === 0) {
+                    document.getElementById("html-css-js").style.display = "block";
+                }
+            }
+            
+            // Initially, hide the Python section
+            document.getElementById("python").style.display = "none";
+
             function run(){
                 let htmlCode = document.getElementById("html-code").value;
                 let cssCode = document.getElementById("css-code").value;
@@ -55,32 +73,29 @@
                 output.contentWindow.eval(jsCode);
             }
 
-            function showTab(n) {
-                var i;
-                var x = document.getElementsByClassName("tabcontent");
-                for (i = 0; i < x.length; i++) {
-                    x[i].style.display = "none";
-                }
-            document.getElementsByClassName("tab")[n].className += " active";
-            document.getElementsByClassName("tabcontent")[n].style.display = "block";
-            }
-
             function runPython() {
                 const pythonCode = document.getElementById("python-code").value;
                 const output = document.getElementById("python-output");
 
-                fetch('/execute_python', {
+                // Post request to execute Python code on the server
+                fetch('http://127.0.0.1:5000/execute_python', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
                     body: pythonCode
                 })
                 .then(response => response.json())
                 .then(data => {
-                    output.textContent = data.output;
+                    if (data.error) {
+                        output.contentDocument.body.textContent = data.error;  // Display error if any
+                    } else {
+                        output.contentDocument.body.textContent = data.output;  // Display output
+                    }
                 })
                 .catch(error => {
-                    output.textContent = 'Error: ' + error;
+                    console.error("Fetch error:", error);
+                    output.contentDocument.body.textContent = 'Error: ' + error.message;
                 });
-                }
+            }
 
         </script>
 
